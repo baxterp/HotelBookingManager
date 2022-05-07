@@ -12,7 +12,7 @@ namespace HotelBookingManager.Classes
         public BookingManager()
         {
             bookings = new List<BookingModel>();
-            roomList = new List<int> { 101, 102, 201, 203 };
+            roomList = ConfigHelper.GetRoomList();
         }
 
         public void AddBooking(string guest, int room, DateTime date)
@@ -21,7 +21,7 @@ namespace HotelBookingManager.Classes
             {
                 if(!IsRoomAvailable(room, date))
                 {
-                    throw new Exception("Room not availble");
+                    throw new RoomNotAvailableException();
                 }
 
                 lock (bookings) // Thread safety
@@ -58,7 +58,14 @@ namespace HotelBookingManager.Classes
                                     && b.RoomID == room).Any() == false;
         }
 
-        private List<BookingModel> bookings;
-        private List<int> roomList;
+        private List<BookingModel> bookings { get; }
+        private List<int> roomList { get; }
+    }
+
+    internal class RoomNotAvailableException : Exception
+    {
+        public RoomNotAvailableException()
+        {
+        }
     }
 }

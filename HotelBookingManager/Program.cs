@@ -18,17 +18,20 @@ namespace HotelBookingManager
             {
                 do
                 {
+                    Console.WriteLine("Hotel booking system");
                     Console.WriteLine("Hello, please enter one of the following options");
                     Console.WriteLine(string.Empty);
                     Console.WriteLine("G : Get available rooms");
                     Console.WriteLine("A : Add booking");
                     Console.WriteLine("I : Is room available");
                     Console.WriteLine("X : Exit");
+                    Console.WriteLine(string.Empty);
+
                     optionSelected = Console.ReadKey().KeyChar.ToString().ToUpper();
+                    Console.WriteLine(string.Empty);
 
                 } while (!optionsToSelect.Contains(optionSelected.ToUpper()));
 
-                Console.WriteLine(string.Empty);
                 Console.WriteLine(string.Empty);
 
                 string dateString = string.Empty;
@@ -38,11 +41,13 @@ namespace HotelBookingManager
                     case "G":
                         Console.WriteLine("Get avaliable rooms");
                         Console.WriteLine(string.Empty);
+
                         proposedDate = GetValidDate();
 
                         Console.WriteLine("The available rooms for date : " + proposedDate.ToString("dd/MM/yyy") + ", are :");
                         List<int> availableRooms = bookingManager.GetAvailableRooms(proposedDate).ToList();
                         availableRooms.ForEach(ar => Console.WriteLine(ar));
+                        Console.WriteLine(string.Empty);
 
                         break;
 
@@ -55,27 +60,50 @@ namespace HotelBookingManager
 
                         Console.WriteLine("Name of booking");
                         string guestName = Console.ReadLine();
+                        bool roomNotAvailable = false;
 
-                        try
+                        do
                         {
-                            bookingManager.AddBooking(guestName, roomNumber, proposedDate);
-                            Console.WriteLine("Booking added successfully");
-                        }
-                        catch (Exception ex)
-                        {
-                            // Error handling
-                            throw;
-                        }
+                            try
+                            {
+                                if(roomNotAvailable)
+                                {
+                                    Console.WriteLine("** Room not available **");
+                                    Console.WriteLine(string.Empty);
+                                    roomNumber = GetValidRoomNumber();
+                                }
+                                bookingManager.AddBooking(guestName, roomNumber, proposedDate);
+
+                                Console.WriteLine("Booking added successfully");
+                                Console.WriteLine(string.Empty);
+                                roomNotAvailable = false;
+                            }
+                            catch (RoomNotAvailableException)
+                            {
+                                roomNotAvailable = true;
+                            }
+                            catch (Exception)
+                            {
+                                throw;
+                            }
+                        } while (roomNotAvailable);
 
                         break;
                     case "I":
                         Console.WriteLine("Is room available");
                         Console.WriteLine(string.Empty);
 
+                        proposedDate = GetValidDate();
+                        roomNumber = GetValidRoomNumber();
+
+                        bool roomIsAvailable = bookingManager.IsRoomAvailable(roomNumber, proposedDate);
+                        string userMessage = roomIsAvailable ? "Room IS available" : "Room NOT available";
+                        Console.WriteLine(userMessage);
+                        Console.WriteLine(string.Empty);
+
                         break;
                     case "X":
-                        Console.WriteLine("Exit");
-                        Console.WriteLine(string.Empty);
+                        Console.WriteLine("Exiting..");
 
                         break;
                     default:
@@ -83,6 +111,7 @@ namespace HotelBookingManager
                 }
 
             } while (optionSelected != "X");
+
         }
 
         private static DateTime GetValidDate()
@@ -124,8 +153,6 @@ namespace HotelBookingManager
             bool roomNumberNotValid = false;
             bool roomNumberNotInList = false;
             int proposedRoomNumber;
-            List<int> roomList = new() { 101, 102, 201, 203 }; // Room list defined twice, bad pratice,
-                                                               // but sticking to Interface defination given in the task description
 
             do
             {
@@ -136,11 +163,11 @@ namespace HotelBookingManager
                     Console.WriteLine("** room number entered not in list **");
 
                 Console.WriteLine("Please enter one of the following room numbers");
-                roomList.ForEach(rl => Console.WriteLine(rl));
+                ConfigHelper.GetRoomList().ForEach(rl => Console.WriteLine(rl));
 
                 string roomNumberString = Console.ReadLine();
                 roomNumberNotValid = !int.TryParse(roomNumberString, out proposedRoomNumber);
-                roomNumberNotInList = !roomList.Contains(proposedRoomNumber);
+                roomNumberNotInList = !ConfigHelper.GetRoomList().Contains(proposedRoomNumber);
 
             } while (roomNumberNotValid || roomNumberNotInList);
 
