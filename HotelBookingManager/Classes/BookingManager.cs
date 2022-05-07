@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using HotelBookingManager.Interfaces;
 using HotelBookingManager.DataModels;
-using System.Linq;
 
 namespace HotelBookingManager.Classes
 {
     internal class BookingManager : IBookingManager
     {
+        private List<BookingModel> Bookings { get; }
+        private List<int> RoomList { get; }
+
         public BookingManager()
         {
-            bookings = new List<BookingModel>();
-            roomList = ConfigHelper.GetRoomList();
+            Bookings = new List<BookingModel>();
+            RoomList = ConfigHelper.GetRoomList();
         }
 
         public void AddBooking(string guest, int room, DateTime date)
@@ -24,9 +27,9 @@ namespace HotelBookingManager.Classes
                     throw new RoomNotAvailableException();
                 }
 
-                lock (bookings) // Thread safety
+                lock (Bookings) // Thread safety
                 {
-                    bookings.Add(new BookingModel()
+                    Bookings.Add(new BookingModel
                     {
                         GuestName = guest,
                         DateBooked = date,
@@ -42,24 +45,21 @@ namespace HotelBookingManager.Classes
 
         public IEnumerable<int> GetAvailableRooms(DateTime date)
         {
-            List<int> bookingForToday = bookings.Where(x => x.DateBooked.Day == date.Day
+            List<int> bookingForToday = Bookings.Where(x => x.DateBooked.Day == date.Day
                                                             && x.DateBooked.Month == date.Month
                                                             && x.DateBooked.Year == date.Year)
                                                 .Select(s => s.RoomID).ToList();
 
-            return roomList.Where(rl => !bookingForToday.Contains(rl));
+            return RoomList.Where(rl => !bookingForToday.Contains(rl));
         }
 
         public bool IsRoomAvailable(int room, DateTime date)
         {
-            return bookings.Where(b => b.DateBooked.Day == date.Day
+            return Bookings.Where(b => b.DateBooked.Day == date.Day
                                     && b.DateBooked.Month == date.Month
                                     && b.DateBooked.Year == date.Year
                                     && b.RoomID == room).Any() == false;
         }
-
-        private List<BookingModel> bookings { get; }
-        private List<int> roomList { get; }
     }
 
     internal class RoomNotAvailableException : Exception

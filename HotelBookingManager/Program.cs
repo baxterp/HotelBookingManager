@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using HotelBookingManager.Classes;
 using HotelBookingManager.Interfaces;
 
@@ -8,10 +9,10 @@ namespace HotelBookingManager
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             string optionSelected = string.Empty;
-            List<string> optionsToSelect = new List<string> { "G", "A", "I", "X" };
+            List<string> optionsToSelect = new() { "G", "A", "I", "X" };
             IBookingManager bookingManager = new BookingManager();
 
             do
@@ -134,10 +135,8 @@ namespace HotelBookingManager
                 {
                     proposedDate = DateTime.ParseExact(dateString, "dd/MM/yyyy", System.Globalization.CultureInfo.CurrentCulture);
                     dateNotValid = false;
-                    if (proposedDate < new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)) // Only test for a date with time of 00:00
-                    {
-                        dateInThePast = true;
-                    }
+
+                    dateInThePast = proposedDate < new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day); // Only test for dates with time of 00:00
                 }
                 catch (FormatException)
                 {
