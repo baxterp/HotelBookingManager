@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace HotelBookingManager.Classes
 {
-    internal class ConfigHelper
+    public class ConfigHelper
     {
         public static List<int> GetRoomList()
         {

@@ -83,9 +83,11 @@ namespace HotelBookingManager
                             {
                                 roomNotAvailable = true;
                             }
-                            catch (Exception)
+                            catch (Exception ex)
                             {
-                                throw;
+                                Console.WriteLine("Problem experienced : " + ex.Message);
+                                Console.WriteLine("Please contact support");
+                                Console.ReadKey();
                             }
                         } while (roomNotAvailable);
 

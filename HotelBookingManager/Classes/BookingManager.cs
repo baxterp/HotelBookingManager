@@ -7,14 +7,15 @@ using HotelBookingManager.DataModels;
 
 namespace HotelBookingManager.Classes
 {
-    internal class BookingManager : IBookingManager
+    public class BookingManager : IBookingManager
     {
-        private List<BookingModel> Bookings { get; }
+        private SynchronizedCollection<BookingModel> Bookings { get; }
         private List<int> RoomList { get; }
+        private readonly object lockObject = new();
 
         public BookingManager()
         {
-            Bookings = new List<BookingModel>();
+            Bookings = new SynchronizedCollection<BookingModel>();
             RoomList = ConfigHelper.GetRoomList();
         }
 
@@ -27,7 +28,7 @@ namespace HotelBookingManager.Classes
                     throw new RoomNotAvailableException();
                 }
 
-                lock (Bookings) // Thread safety
+                lock (lockObject) // Extra thread safety
                 {
                     Bookings.Add(new BookingModel
                     {

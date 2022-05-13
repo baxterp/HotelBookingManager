@@ -2,7 +2,7 @@
 
 namespace HotelBookingManager.DataModels
 {
-    internal class BookingModel
+    public class BookingModel
     {
         public int RoomID { get; set; }
         public string GuestName { get; set; }
